@@ -15,67 +15,19 @@ import plotly.express as px
 
 
 
-st.title("Welcome to MABA Class")
-st.markdown("This is a demo Streamlit app.")
-st.markdown("My name is Trent, hello world!..")
-st.markdown("This is v2")
+st.title("Trent Hannack - MABA 6490 HW 1")
+st.subheader("App Idea")
+st.markdown("For my app, I would like to prompt for the users to answer 3-5 questions (e.g. what is your favorite food?).")
+st.markdown("Next, the app will use a classifier model trained on data to tell whether the person is a Packer or Viking fan.")
+st.markdown("This is an extremely simple app, but I want to start that way to practice the process.")
 
-@st.cache(persist=True)
-def load_data():
-    df = pd.read_csv("https://datahub.io/machine-learning/iris/r/iris.csv")
-    return(df)
+st.subheader("Reflections")
+st.markdown("My main hangup was the pip installer, which was throwing errors that I couldn't fix, even with the help of Google.")
+st.markdown("But, after re-watching the lecture, I got it to run in my Anaconda prompt.")
+st.markdown("I also had issues with PyCharm, but when I switched to Spyder it worked just fine.")
+st.markdown("Everything else went pretty smoothly and I was able to complete the setup")
 
-
-
-def run():
-    st.subheader("Iris Data Loaded into a Pandas Dataframe.")
-
-    df = load_data()
+st.subheader("Classmate help")
+st.markdown("Dan Smetana helped confirm and clarify a question I had regarding the assignment expectations")
 
 
-
-    disp_head = st.sidebar.radio('Select DataFrame Display Option:',('Head', 'All'),index=0)
-
-
-
-    #Multi-Select
-    #sel_plot_cols = st.sidebar.multiselect("Select Columns For Scatter Plot",df.columns.to_list()[0:4],df.columns.to_list()[0:2])
-
-    #Select Box
-    #x_plot = st.sidebar.selectbox("Select X-axis Column For Scatter Plot",df.columns.to_list()[0:4],index=0)
-    #y_plot = st.sidebar.selectbox("Select Y-axis Column For Scatter Plot",df.columns.to_list()[0:4],index=1)
-
-
-    if disp_head=="Head":
-        st.dataframe(df.head())
-    else:
-        st.dataframe(df)
-    #st.table(df)
-    #st.write(df)
-
-
-    #Scatter Plot
-    fig = px.scatter(df, x=df["sepallength"], y=df["sepalwidth"], color="class",
-                 size='petallength', hover_data=['petalwidth'])
-
-    fig.update_layout({
-                'plot_bgcolor': 'rgba(0, 0, 0, 0)'})
-
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
-
-    st.write("\n")
-    st.subheader("Scatter Plot")
-    st.plotly_chart(fig, use_container_width=True)
-
-
-    #Add images
-    #images = ["<image_url>"]
-    #st.image(images, width=600,use_container_width=True, caption=["Iris Flower"])
-
-
-
-
-
-if __name__ == '__main__':
-    run()
