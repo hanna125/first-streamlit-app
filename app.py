@@ -5,29 +5,138 @@
 
 @author: hamzafarooq@ MABA CLASS
 """
+!pip install -U spacy
+!pip install -U sentence-transformers
 
-import streamlit as st
+import spacy
+from spacy.lang.en.stop_words import STOP_WORDS
+from string import punctuation
+from collections import Counter
+from heapq import nlargest
+
+!python -m spacy download en_core_web_sm
+
+import os
+import spacy
+nlp = spacy.load("en_core_web_sm")
+from spacy import displacy
+
+pip install wordcloud
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+import matplotlib.pyplot as plt
+
+stopwords=list(STOP_WORDS)
+from string import punctuation
+punctuation=punctuation+ '\n'
+
 import pandas as pd
 
-import plotly.express as px
+from sentence_transformers import SentenceTransformer
+import scipy.spatial
+import pickle as pkl
+import os
+
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+from google.colab import files
+    
+uploaded = files.upload()
+import pandas as pd
+import io
+  
+df = pd.read_csv(io.BytesIO(uploaded['Hotel New York Combined.csv']))
+
+df['hotel_name'].value_counts()
+df['hotel_name'].drop_duplicates()
+
+df_combined = df.sort_values(['hotel_name']).groupby('hotel_name', sort=False).review_body.apply(''.join).reset_index(name='all_review')
+
+import re
+
+df_combined['all_review'] = df_combined['all_review'].apply(lambda x: re.sub('[^a-zA-z0-9\s]','',x))
+
+def lower_case(input_str):
+    input_str = input_str.lower()
+    return input_str
+
+df_combined['all_review']= df_combined['all_review'].apply(lambda x: lower_case(x))
+
+df = df_combined
+
+df_sentences = df_combined.set_index("all_review")
+
+df_sentences = df_sentences["hotel_name"].to_dict()
+df_sentences_list = list(df_sentences.keys())
+len(df_sentences_list)
+
+list(df_sentences.keys())[:5]
+
+import pandas as pd
+from tqdm import tqdm
+from sentence_transformers import SentenceTransformer, util
+
+df_sentences_list = [str(d) for d in tqdm(df_sentences_list)]
+
+corpus = df_sentences_list
+corpus_embeddings = embedder.encode(corpus,show_progress_bar=True)
+
+corpus_embeddings[0]
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+paraphrases = util.paraphrase_mining(model, corpus)
+
+queries = ['Hotel close to Central Park',
+           'Hotel with breakfast'
+           ]
+query_embeddings = embedder.encode(queries,show_progress_bar=True)
+
+from sentence_transformers import SentenceTransformer, util
+import torch
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+corpus_embeddings = embedder.encode(corpus, convert_to_tensor=True)
+
+def plot_cloud(wordcloud):
+    # Set figure size
+    plt.figure(figsize=(40, 30))
+    # Display image
+    plt.imshow(wordcloud) 
+    # No axis details
+    plt.axis("off");
+    
+# Query sentences:
+queries = ['Hotel close to Central Park',
+           'hotel with breakfast'
+           ]
 
 
+# Find the closest 5 sentences of the corpus for each query sentence based on cosine similarity
+top_k = min(5, len(corpus))
+for query in queries:
+    query_embedding = embedder.encode(query, convert_to_tensor=True)
 
+    # We use cosine-similarity and torch.topk to find the highest 5 scores
+    cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
+    top_results = torch.topk(cos_scores, k=top_k)
 
+    #wordcloud = WordCloud(width= 3000, height = 2000, random_state=1, background_color='salmon', colormap='Pastel1', collocations=False, stopwords = STOPWORDS).generate(text)
+    #plot_cloud(wordcloud)
+    #plt.imshow(wordcloud, interpolation='bilinear')
+    #plt.axis("off")
+    #plt.show()
 
-st.title("Trent Hannack - MABA 6490 HW 1")
-st.subheader("App Idea")
-st.markdown("For my app, I would like to prompt for the users to answer 3-5 questions (e.g. what is your favorite food?).")
-st.markdown("Next, the app will use a classifier model trained on data to tell whether the person is a Packer or Viking fan.")
-st.markdown("This is an extremely simple app, but I want to start that way to practice the process.")
+    print("\n\n======================\n\n")
+    print("Query:", query)
+    print("\nTop 5 most similar sentences in corpus:")
 
-st.subheader("Reflections")
-st.markdown("My main hangup was the pip installer, which was throwing errors that I couldn't fix, even with the help of Google.")
-st.markdown("But, after re-watching the lecture, I got it to run in my Anaconda prompt.")
-st.markdown("I also had issues with PyCharm, but when I switched to Spyder it worked just fine.")
-st.markdown("Everything else went pretty smoothly and I was able to complete the setup")
-
-st.subheader("Classmate help")
-st.markdown("Dan Smetana helped confirm and clarify a question I had regarding the assignment expectations")
-
-
+    for score, idx in zip(top_results[0], top_results[1]):
+        print("(Score: {:.4f})".format(score))
+        #print(corpus[idx], "(Score: {:.4f})".format(score))
+        row_dict = df.loc[df['all_review']== corpus[idx]]
+        print("paper_id:  " , row_dict['hotel_name'] , "\n")
+        wordcloud = WordCloud(width= 3000, height = 2000, random_state=1, background_color='salmon', colormap='Pastel1', collocations=False, stopwords = STOPWORDS).generate(str(corpus[idx]))
+        plot_cloud(wordcloud)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.show()
+        print()
