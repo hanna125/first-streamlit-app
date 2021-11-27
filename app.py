@@ -3,7 +3,7 @@
 """
 
 
-@author: hamzafarooq@ MABA CLASS
+@author: Trent Hannack
 """
 !pip install -U spacy
 !pip install -U sentence-transformers
