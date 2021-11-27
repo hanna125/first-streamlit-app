@@ -5,8 +5,8 @@
 
 @author: Trent Hannack
 """
-!pip install -U spacy
-!pip install -U sentence-transformers
+##!pip install -U spacy
+##!pip install -U sentence-transformers
 
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
@@ -14,14 +14,14 @@ from string import punctuation
 from collections import Counter
 from heapq import nlargest
 
-!python -m spacy download en_core_web_sm
+##!python -m spacy download en_core_web_sm
 
 import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
 from spacy import displacy
 
-pip install wordcloud
+##pip install wordcloud
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
