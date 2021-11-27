@@ -105,9 +105,10 @@ def plot_cloud(wordcloud):
     plt.axis("off");
     
 # Query sentences:
-queries = ['Hotel close to Central Park',
-           'hotel with breakfast'
-           ]
+queries = input('What kind of hotel are you looking for?')
+#queries = ['Hotel close to Central Park',
+#           'hotel with breakfast'
+#           ]
 
 
 # Find the closest 5 sentences of the corpus for each query sentence based on cosine similarity
