@@ -5,8 +5,8 @@
 
 @author: Trent Hannack
 """
-#pip install -U spacy
-#pip install -U sentence-transformers
+pip install spacy
+pip install sentence-transformers
 
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
@@ -14,7 +14,7 @@ from string import punctuation
 from collections import Counter
 from heapq import nlargest
 
-python -m spacy download en_core_web_sm
+python spacy download en_core_web_sm
 
 import os
 import spacy
