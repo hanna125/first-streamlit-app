@@ -2,3 +2,9 @@ pandas
 streamlit
 plotly
 sklearn
+spacy
+os
+wordcloud
+sentence-transformers
+matplotlib.pyplot
+io
