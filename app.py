@@ -5,47 +5,35 @@
 
 @author: Trent Hannack
 """
-#!pip install -U spacy
-#!pip install -U sentence-transformers
 
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from collections import Counter
 from heapq import nlargest
-
-#!python -m spacy download en_core_web_sm
-
 import os
 import spacy
 nlp = spacy.load("en_core_web_sm")
 from spacy import displacy
 
-#pip install wordcloud
-
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
+
+st.title("MABA 6490 Assignment 4")
 
 stopwords=list(STOP_WORDS)
 from string import punctuation
 punctuation=punctuation+ '\n'
 
 import pandas as pd
-
 from sentence_transformers import SentenceTransformer
 import scipy.spatial
 import pickle as pkl
 import os
 
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
-
-from google.colab import files
-    
-uploaded = files.upload()
-import pandas as pd
-import io
   
-df = pd.read_csv(io.BytesIO(uploaded['Hotel New York Combined.csv']))
+df = pd.read_csv('Hotel New York Combined.csv')
 
 df['hotel_name'].value_counts()
 df['hotel_name'].drop_duplicates()
@@ -86,9 +74,12 @@ corpus_embeddings[0]
 model = SentenceTransformer('all-MiniLM-L6-v2')
 paraphrases = util.paraphrase_mining(model, corpus)
 
-queries = ['Hotel close to Central Park',
+#queries = ['Hotel close to Central Park',
            'Hotel with breakfast'
            ]
+
+# Query sentences:
+queries = input('What kind of hotel are you looking for?')
 query_embeddings = embedder.encode(queries,show_progress_bar=True)
 
 from sentence_transformers import SentenceTransformer, util
@@ -104,13 +95,6 @@ def plot_cloud(wordcloud):
     plt.imshow(wordcloud) 
     # No axis details
     plt.axis("off");
-    
-# Query sentences:
-queries = input('What kind of hotel are you looking for?')
-#queries = ['Hotel close to Central Park',
-#           'hotel with breakfast'
-#           ]
-
 
 # Find the closest 5 sentences of the corpus for each query sentence based on cosine similarity
 top_k = min(5, len(corpus))
@@ -121,19 +105,12 @@ for query in queries:
     cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
     top_results = torch.topk(cos_scores, k=top_k)
 
-    #wordcloud = WordCloud(width= 3000, height = 2000, random_state=1, background_color='salmon', colormap='Pastel1', collocations=False, stopwords = STOPWORDS).generate(text)
-    #plot_cloud(wordcloud)
-    #plt.imshow(wordcloud, interpolation='bilinear')
-    #plt.axis("off")
-    #plt.show()
-
     print("\n\n======================\n\n")
     print("Query:", query)
     print("\nTop 5 most similar sentences in corpus:")
 
     for score, idx in zip(top_results[0], top_results[1]):
         print("(Score: {:.4f})".format(score))
-        #print(corpus[idx], "(Score: {:.4f})".format(score))
         row_dict = df.loc[df['all_review']== corpus[idx]]
         print("paper_id:  " , row_dict['hotel_name'] , "\n")
         wordcloud = WordCloud(width= 3000, height = 2000, random_state=1, background_color='salmon', colormap='Pastel1', collocations=False, stopwords = STOPWORDS).generate(str(corpus[idx]))
